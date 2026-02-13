@@ -1,0 +1,403 @@
+# WaterFurnace Aurora ESPHome Package
+# 
+# This is a complete external package that can be included in your ESPHome configuration.
+# It provides all sensors, controls, and configuration options for WaterFurnace Aurora
+# geothermal heat pumps via RS-485 Modbus RTU.
+#
+# USAGE (from GitHub):
+#   packages:
+#     waterfurnace.aurora: github://daemonp/esphome_waterfurnace_aurora/waterfurnace_aurora.yaml@master
+#
+# REQUIRED SUBSTITUTIONS (set these before including):
+#   uart_tx_pin: GPIO pin for UART TX (e.g., GPIO17)
+#   uart_rx_pin: GPIO pin for UART RX (e.g., GPIO16)
+#   flow_control_pin: GPIO pin for RS-485 direction control (e.g., GPIO4)
+#
+# OPTIONAL SUBSTITUTIONS:
+#   modbus_address: Modbus slave address (default: "1")
+#   update_interval: How often to poll the heat pump (default: 5s)
+#
+# Serial settings: 19200 baud, 8 data bits, Even parity, 1 stop bit
+#
+# Hardware wiring (ESP32 -> MAX485 -> Aurora):
+#   ESP32 TX_PIN    -> MAX485 DI
+#   ESP32 RX_PIN    -> MAX485 RO  
+#   ESP32 FLOW_PIN  -> MAX485 DE + RE (tied together)
+#   3.3V            -> MAX485 VCC
+#   GND             -> MAX485 GND
+#   MAX485 A        -> Aurora RS-485 A (+)
+#   MAX485 B        -> Aurora RS-485 B (-)
+#   GND             -> Aurora GND (shield)
+
+esphome:
+  name: waterfurnace-aurora
+
+esp8266:
+  board: d1_mini  
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  min_auth_mode: WPA
+  fast_connect: true
+
+# Enable Home Assistant API
+api:
+
+# Enable logging (but not over the serial port as we use that for RS-485)
+logger:
+  baud_rate: 0
+
+# Enable OTA updates
+ota:
+  - platform: esphome
+
+substitutions:
+  # These must be set by the user
+  uart_tx_pin: TX
+  uart_rx_pin: RX
+  flow_control_pin: D1
+  # Optional settings
+  modbus_address: "1"
+  update_interval: 5s
+
+external_components:
+  - source:
+      type: git
+      url: https://github.com/daemonp/esphome_waterfurnace_aurora
+      ref: master
+    components: [ waterfurnace_aurora ]
+
+# UART configuration for RS-485 communication
+# Aurora uses: 19200 baud, 8 data bits, Even parity, 1 stop bit
+uart:
+  id: mod_bus
+  tx_pin: ${uart_tx_pin}
+  rx_pin: ${uart_rx_pin}
+  baud_rate: 19200
+  parity: EVEN
+  stop_bits: 1
+
+# WaterFurnace Aurora component
+# RS-485 flow control is handled directly by the component
+waterfurnace_aurora:
+  id: aurora
+  uart_id: mod_bus
+  address: ${modbus_address}
+  update_interval: ${update_interval}
+  flow_control_pin: ${flow_control_pin}
+
+# =============================================================================
+# CLIMATE ENTITIES
+# =============================================================================
+
+climate:
+  # Main thermostat (for non-IZ2 systems, or whole-system control)
+  - platform: waterfurnace_aurora
+    id: aurora_thermostat
+    name: "Geothermal Heat Pump"
+    aurora_id: aurora
+
+  # IZ2 Zone climates (uncomment if you have IntelliZone 2)
+  # Each zone appears as a separate climate entity in Home Assistant
+  - platform: waterfurnace_aurora
+    id: aurora_zone_1
+    name: "Main"
+    aurora_id: aurora
+    zone: 1
+  - platform: waterfurnace_aurora
+    id: aurora_zone_2
+    name: "Master"
+    aurora_id: aurora
+    zone: 2
+  - platform: waterfurnace_aurora
+    id: aurora_zone_3
+    name: "Girls"
+    aurora_id: aurora
+    zone: 3
+  # - platform: waterfurnace_aurora
+  #   id: aurora_zone_4
+  #   name: "Zone 4"
+  #   aurora_id: aurora
+  #   zone: 4
+  # - platform: waterfurnace_aurora
+  #   id: aurora_zone_5
+  #   name: "Zone 5"
+  #   aurora_id: aurora
+  #   zone: 5
+  # - platform: waterfurnace_aurora
+  #   id: aurora_zone_6
+  #   name: "Zone 6"
+  #   aurora_id: aurora
+  #   zone: 6
+
+# =============================================================================
+# CONTROLS - SWITCHES
+# =============================================================================
+
+switch:
+  - platform: waterfurnace_aurora
+    aurora_id: aurora
+    dhw_enabled:
+      name: "DHW Enabled"
+
+# =============================================================================
+# CONTROLS - NUMBER INPUTS
+# =============================================================================
+
+number:
+  - platform: waterfurnace_aurora
+    aurora_id: aurora
+    # DHW setpoint (100-140°F)
+    dhw_setpoint:
+      name: "DHW Setpoint"
+    # Blower/ECM speed settings (1-12)
+    blower_only_speed:
+      name: "Blower Only Speed"
+    lo_compressor_speed:
+      name: "Low Compressor ECM Speed"
+    hi_compressor_speed:
+      name: "High Compressor ECM Speed"
+    aux_heat_speed:
+      name: "Aux Heat ECM Speed"
+    # VS Pump speed settings (1-100%)
+    pump_min_speed:
+      name: "Pump Minimum Speed"
+    pump_max_speed:
+      name: "Pump Maximum Speed"
+    # Fan intermittent timing (minutes)
+    fan_intermittent_on:
+      name: "Fan Intermittent On Time"
+    fan_intermittent_off:
+      name: "Fan Intermittent Off Time"
+    # Humidity targets (%)
+    humidification_target:
+      name: "Humidification Target"
+    dehumidification_target:
+      name: "Dehumidification Target"
+
+# =============================================================================
+# SENSORS - TEMPERATURES
+# =============================================================================
+
+sensor:
+  - platform: waterfurnace_aurora
+    aurora_id: aurora
+    
+    # Air temperatures
+    entering_air_temperature:
+      name: "Entering Air Temperature"
+    leaving_air_temperature:
+      name: "Leaving Air Temperature"
+    ambient_temperature:
+      name: "Ambient Temperature"
+    outdoor_temperature:
+      name: "Outdoor Temperature"
+    
+    # Water/loop temperatures
+    entering_water_temperature:
+      name: "Entering Water Temperature"
+    leaving_water_temperature:
+      name: "Leaving Water Temperature"
+    
+    # Setpoints (read-only sensors)
+    heating_setpoint:
+      name: "Heating Setpoint"
+    cooling_setpoint:
+      name: "Cooling Setpoint"
+    
+    # Humidity
+    humidity:
+      name: "Relative Humidity"
+    
+    # DHW (Domestic Hot Water)
+    dhw_temperature:
+      name: "DHW Temperature"
+    dhw_setpoint:
+      name: "DHW Setpoint"
+    
+    # Compressor / VS Drive
+    compressor_speed:
+      name: "Compressor Speed"
+    compressor_desired_speed:
+      name: "Compressor Desired Speed"
+    
+    # Pressures
+    discharge_pressure:
+      name: "Discharge Pressure"
+    suction_pressure:
+      name: "Suction Pressure"
+    loop_pressure:
+      name: "Loop Pressure"
+    
+    # Refrigeration
+    eev_open_percentage:
+      name: "EEV Open Percentage"
+    superheat_temperature:
+      name: "Superheat Temperature"
+    subcool_temperature:
+      name: "Subcool Temperature"
+    discharge_temperature:
+      name: "Discharge Temperature"
+    suction_temperature:
+      name: "Suction Temperature"
+    heating_liquid_line_temperature:
+      name: "Heating Liquid Line Temperature"
+    saturated_condenser_temperature:
+      name: "Saturated Condenser Temperature"
+    fp1_temperature:
+      name: "FP1 Temperature"
+    fp2_temperature:
+      name: "FP2 Temperature"
+    
+    # VS Drive temperatures
+    vs_drive_temperature:
+      name: "VS Drive Temperature"
+    vs_inverter_temperature:
+      name: "VS Inverter Temperature"
+    
+    # Energy / Power
+    line_voltage:
+      name: "Line Voltage"
+    total_watts:
+      name: "Total Power"
+    compressor_watts:
+      name: "Compressor Power"
+    blower_watts:
+      name: "Blower Power"
+    aux_heat_watts:
+      name: "Aux Heat Power"
+    pump_watts:
+      name: "Pump Power"
+    heat_of_extraction:
+      name: "Heat of Extraction"
+    heat_of_rejection:
+      name: "Heat of Rejection"
+    
+    # Loop / Water flow
+    waterflow:
+      name: "Loop Flow Rate"
+    
+    # Blower/ECM speeds
+    blower_speed:
+      name: "Blower Speed"
+    blower_only_speed:
+      name: "Blower Only Speed Setting"
+    lo_compressor_speed:
+      name: "Low Compressor ECM Speed Setting"
+    hi_compressor_speed:
+      name: "High Compressor ECM Speed Setting"
+    aux_heat_speed:
+      name: "Aux Heat ECM Speed Setting"
+    
+    # VS Pump speeds
+    pump_speed:
+      name: "Pump Speed"
+    pump_min_speed:
+      name: "Pump Minimum Speed Setting"
+    pump_max_speed:
+      name: "Pump Maximum Speed Setting"
+    
+    # Humidity targets (read-only sensor versions)
+    humidification_target:
+      name: "Humidification Target Sensor"
+    dehumidification_target:
+      name: "Dehumidification Target Sensor"
+    
+    # System status
+    line_voltage_setting:
+      name: "Line Voltage Setting"
+    anti_short_cycle:
+      name: "Anti-Short-Cycle Countdown"
+    fault_code:
+      name: "Fault Code"
+
+# =============================================================================
+# BINARY SENSORS
+# =============================================================================
+
+binary_sensor:
+  - platform: waterfurnace_aurora
+    aurora_id: aurora
+    
+    # Running states
+    compressor_running:
+      name: "Compressor Running"
+    blower_running:
+      name: "Blower Running"
+    aux_heat_running:
+      name: "Aux Heat Running"
+    dhw_running:
+      name: "DHW Running"
+    loop_pump_running:
+      name: "Loop Pump Running"
+    humidifier_running:
+      name: "Humidifier Running"
+    dehumidifier_running:
+      name: "Dehumidifier Running"
+    
+    # Fault/problem states
+    lockout:
+      name: "Lockout"
+      device_class: problem
+    low_pressure_switch:
+      name: "Low Pressure Switch"
+      device_class: problem
+    high_pressure_switch:
+      name: "High Pressure Switch"
+      device_class: problem
+    emergency_shutdown:
+      name: "Emergency Shutdown"
+      device_class: problem
+    load_shed:
+      name: "Load Shed Active"
+
+# =============================================================================
+# TEXT SENSORS
+# =============================================================================
+
+text_sensor:
+  - platform: waterfurnace_aurora
+    aurora_id: aurora
+    
+    # Mode/status
+    current_mode:
+      name: "Current Mode"
+    hvac_mode:
+      name: "HVAC Mode"
+    fan_mode:
+      name: "Fan Mode"
+    
+    # Fault information
+    fault_description:
+      name: "Fault Description"
+    fault_history:
+      name: "Fault History"
+    
+    # Device information
+    model_number:
+      name: "Model Number"
+    serial_number:
+      name: "Serial Number"
+    
+    # VS Drive status
+    vs_derate:
+      name: "VS Drive Derate"
+    vs_safe_mode:
+      name: "VS Drive Safe Mode"
+    vs_alarm:
+      name: "VS Drive Alarm"
+    
+    # AXB status
+    axb_inputs:
+      name: "AXB Inputs"
+
+# =============================================================================
+# BUTTONS
+# =============================================================================
+
+button:
+  - platform: waterfurnace_aurora
+    aurora_id: aurora
+    clear_fault_history:
+      name: "Clear Fault History"
