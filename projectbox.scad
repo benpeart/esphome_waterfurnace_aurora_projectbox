@@ -348,7 +348,7 @@ cutoutsLid  =
 cutoutsFront =  
 [
     [14.0, 1.0, 12.0, 8, 0, yappRectangle, yappCenter]  // microUSB
-   ,[38.0, 0.9, 0, 0, 2.5, yappCircle, yappCenter]      // Ethernet cord
+   ,[40.0, 4.5, 5, 9, 2.5, yappCircle, yappCenter]      // Ethernet cord
 ];
 
 

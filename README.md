@@ -40,8 +40,9 @@ This matches the WaterFurnace Aurora wiring scheme.
 
 ## Assembly Instructions
 
-1. Insert the **D1 Mini** and **MAX485 module** into the prototype PCB.  
-2. Use 30 AWG wire to connect the ESP8266 to the RS‑485 module.  
+1. Insert the **D1 Mini** and **MAX485 module** into the prototype PCB.
+2. Solder some of the pins to the PCB to hold the parts in place
+2. Use 30 AWG wire to wire the ESP8266 to the RS‑485 module.  
 3. (Optional) Add a small amount of solder to secure wrapped connections.  
 4. Place the assembled PCB into the printed project box.  
 5. Feed the RJ45 cable through the round opening and secure it with a zip‑tie for strain relief.  
@@ -55,9 +56,9 @@ This matches the WaterFurnace Aurora wiring scheme.
 | Pin 2 (RS485–)   | Orange             | B / –        | — |
 | Pin 3 (RS485+)   | White/Green        | A / +        | — |
 | Pin 4 (RS485–)   | Blue               | B / –        | — |
-| —                | —                  | DI (TX)      | GPIO_TX |
-| —                | —                  | RO (RX)      | GPIO_RX |
-| —                | —                  | DE/RE        | GPIO_FLOW |
+| —                | —                  | DI (TX)      | TX |
+| —                | —                  | RO (RX)      | RX |
+| —                | —                  | DE/RE        | D1 |
 | —                | —                  | VCC          | 3.3V / 5V |
 | —                | —                  | GND          | GND |
 
