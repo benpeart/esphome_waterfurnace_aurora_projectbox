@@ -58,10 +58,10 @@ printDisplayClips     = false;
 //Defined here so you can define the "Main" PCB using these if wanted
 pcbLength           = 70; // front to back (X axis)
 pcbWidth            = 50; // side to side (Y axis)
-pcbThickness        = 1.6; 
-standoffHeight      = 5.0; //-- How much the PCB needs to be raised from the base to leave room for solderings and whatnot
+pcbThickness        = 2.0; // at 1.6 there wasn't enough space between the standoffs and the box couldn't close
+standoffHeight      = 6.0; //-- How much the PCB needs to be raised from the base to leave room for solderings and whatnot
 standoffDiameter    = 5;
-standoffPinDiameter = 2.0;
+standoffPinDiameter = 1.6;
 standoffHoleSlack   = 0.4;
 
 //===================================================================
@@ -98,7 +98,7 @@ standoffHoleSlack   = 0.4;
 pcb = 
 [
   // Default Main PCB - DO NOT REMOVE the "Main" line.
-  ["Main",              pcbLength,pcbWidth,    0,0,    pcbThickness,  standoffHeight, standoffDiameter, standoffPinDiameter, standoffHoleSlack]
+  ["Main", pcbLength, pcbWidth, 0,0, pcbThickness,  standoffHeight, standoffDiameter, standoffPinDiameter, standoffHoleSlack]
 ];
 
 //-------------------------------------------------------------------                            
@@ -120,7 +120,7 @@ lidPlaneThickness   = 1.5;
 //-- space between pcb and lidPlane :=
 //--      (bottonWallHeight+lidWallHeight) - (standoffHeight+pcbThickness)
 baseWallHeight      = 15;
-lidWallHeight       = 5;
+lidWallHeight       = 10;
 
 //-- ridge where base and lid off box can overlap
 //-- Make sure this isn't less than lidWallHeight
@@ -242,10 +242,10 @@ inspectZfromBottom        = true;       //-> View from the inspection cut up
 //-------------------------------------------------------------------
 pcbStands = 
 [
-    [2, 2, 2, yappBoth, yappPin, yappBackLeft]   // back-left
-   ,[2, 2, 2, yappBoth, yappPin, yappFrontRight] // back-right
-   ,[2, 2, 2, yappBoth, yappHole, yappFrontLeft] // front-left
-   ,[2, 2, 2, yappBoth, yappHole, yappBackRight] // front-right
+    [2, 2, standoffHeight, yappBoth, yappPin, yappBackLeft]   // back-left
+   ,[2, 2, standoffHeight, yappBoth, yappPin, yappFrontRight] // back-right
+   ,[2, 2, standoffHeight, yappBoth, yappHole, yappFrontLeft] // front-left
+   ,[2, 2, standoffHeight, yappBoth, yappHole, yappBackRight] // front-right
 ];
 
 
@@ -347,8 +347,8 @@ cutoutsLid  =
 
 cutoutsFront =  
 [
-    [14.0, 1.0, 12.0, 8, 0, yappRectangle, yappCenter]  // microUSB
-   ,[40.0, 4.5, 5, 9, 2.5, yappCircle, yappCenter]      // Ethernet cord
+    [17.0, 1.0, 13.0, 8.5, 0, yappRectangle, yappCenter]  // microUSB
+   ,[37.0, 4.5, 5, 9, 2.5, yappCircle, yappCenter]      // Ethernet cord
 ];
 
 

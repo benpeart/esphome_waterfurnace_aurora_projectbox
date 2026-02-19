@@ -29,35 +29,12 @@
 #   MAX485 B        -> Aurora RS-485 B (-)
 #   GND             -> Aurora GND (shield)
 
-esphome:
-  name: waterfurnace-aurora
-
-esp8266:
-  board: d1_mini  
-
-wifi:
-  ssid: !secret wifi_ssid
-  password: !secret wifi_password
-  min_auth_mode: WPA
-  fast_connect: true
-
-# Enable Home Assistant API
-api:
-
-# Enable logging (but not over the serial port as we use that for RS-485)
-logger:
-  baud_rate: 0
-
-# Enable OTA updates
-ota:
-  - platform: esphome
-
 substitutions:
   # These must be set by the user
-  uart_tx_pin: TX
-  uart_rx_pin: RX
-  flow_control_pin: D1
-  # Optional settings
+  uart_tx_pin: TX      # GPIO1
+  uart_rx_pin: RX      # GPIO3
+  flow_control_pin: D1 # GPIO5
+  # Modbus settings
   modbus_address: "1"
   update_interval: 5s
 
@@ -67,6 +44,26 @@ external_components:
       url: https://github.com/daemonp/esphome_waterfurnace_aurora
       ref: master
     components: [ waterfurnace_aurora ]
+
+esphome:
+  name: waterfurnace-aurora
+
+esp8266:
+  board: d1_mini  
+
+# Standard ESPHome components
+logger:           # Enable logging
+  baud_rate: 0
+api:              # Enable Home Assistant API
+ota:              # Enable OTA updates
+  - platform: esphome
+
+# Wifi setup
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  min_auth_mode: WPA
+  fast_connect: true
 
 # UART configuration for RS-485 communication
 # Aurora uses: 19200 baud, 8 data bits, Even parity, 1 stop bit

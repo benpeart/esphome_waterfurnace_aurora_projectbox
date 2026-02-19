@@ -1,7 +1,7 @@
 # Project Box for WaterFurnace Aurora (ESPHome)
 
-
-![Project Box](images/Project%20Box.jpg)
+<img src="images/in%20box.jpg" alt="In Box" width=50%>
+<img src="images/external.jpg" alt="Project Box" width="50%">
 
 I recently found the amazing project [WaterFurnace Aurora for ESPHome](https://github.com/daemonp/esphome_waterfurnace_aurora). Amazing because I'd seen [WaterFurnace Aurora Gem](https://github.com/ccutrer/waterfurnace_aurora/blob/main/README.md) and was planning on porting it to ESP32 so I could avoid having to setup a docker or Raspberry Pi to get it up and running in my system. Turns out, it had already been done even better than I was planning as it also removed the MQTT requirement (fewer moving parts) and also made it ESPHome compatible (good HW support, simple build/install/upgrade). 
 
@@ -22,8 +22,10 @@ The only thing [WaterFurnace Aurora for ESPHome](https://github.com/daemonp/esph
 
 A ready‑to‑print enclosure is included:
 
-- **STL file:** `projectbox.stl`  
-- **Source:** `projectbox.scad`
+- **STL file:** [projectbox.stl](projectbox.stl)  
+- **Source:** [projectbox.scad](projectbox.scad)
+
+![Project Box](images/Project%20Box.jpg)
 
 The model was created using **[OpenSCAD](https://openscad.org/)** and **[YAPP_Box](https://github.com/mrWheel/YAPP_Box)**, making it easy to customize dimensions or features if needed.
 
@@ -33,20 +35,23 @@ You can cut an existing Ethernet patch cable or crimp your own using CAT5/5e.
 
 1. Ensure the RJ45 end is wired to **[TIA-568-B](https://upload.wikimedia.org/wikipedia/commons/6/60/RJ-45_TIA-568B_Left.png)**.  
 2. Strip the opposite end and twist the following pairs together:
-   - White/Orange + White/Green → **RS485+**
-   - Blue + Orange → **RS485‑**
+   - White/Orange + White/Green → **RS485 A / +**
+   - Blue + Orange → **RS485 B / ‑**
 
 This matches the WaterFurnace Aurora wiring scheme.
 
 ## Assembly Instructions
 
 1. Insert the **D1 Mini** and **MAX485 module** into the prototype PCB.
-2. Solder some of the pins to the PCB to hold the parts in place
-2. Use 30 AWG wire to wire the ESP8266 to the RS‑485 module.  
-3. (Optional) Add a small amount of solder to secure wrapped connections.  
-4. Place the assembled PCB into the printed project box.  
-5. Feed the RJ45 cable through the round opening and secure it with a zip‑tie for strain relief.  
-6. Insert the twisted pairs into the MAX485 screw terminals and tighten.
+1. Solder some of the pins to the PCB to hold the parts in place
+1. Use 30 AWG wire to wire the ESP8266 to the RS‑485 module.  
+1. (Optional) Add a small amount of solder to secure wrapped connections.  
+1. Feed the RJ45 cable through the round opening
+1. Insert the twisted pairs into the MAX485 screw terminals and tighten.
+1. Place the assembled PCB into the printed project box.  
+1. Secure the RJ45 cable with a zip‑tie for strain relief.  
+
+![Project Box](images/wiring.jpg)
 
 ### Wiring Reference
 
